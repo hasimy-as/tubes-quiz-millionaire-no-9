@@ -48,6 +48,48 @@ func roleCheck(role int) string {
 	return PESERTA
 }
 
+// Mesti disesuaikan lagi buat nampilin soal acak, lebih dari 1.
+func tanyaJawab(soalIndex int) {
+	if soalIndex < 0 || soalIndex >= NMAX || BankSoal[soalIndex].Id == 0 {
+		fmt.Println("Pertanyaan tidak ditemukan.")
+		return
+	}
+
+	var soal = BankSoal[soalIndex]
+	fmt.Printf("\nPertanyaan: %s\n", soal.Pertanyaan)
+
+	var options = []string{"a", "b", "c", "d"}
+	for i, pilihan := range soal.Pilihan {
+		fmt.Printf("%s. %s\n", options[i], pilihan)
+	}
+
+	var jawabanUser string
+	fmt.Print("\nMasukkan jawaban Anda (a, b, c, atau d): ")
+	fmt.Scan(&jawabanUser)
+
+	var userAnswerIndex = -1
+	for i, opt := range options {
+		if jawabanUser == opt {
+			userAnswerIndex = i
+			break
+		}
+	}
+
+	if userAnswerIndex == -1 {
+		fmt.Println("Jawaban tidak valid.")
+		return
+	}
+
+	fmt.Printf("\nJawaban anda: %s\n", soal.Pilihan[userAnswerIndex])
+
+	if soal.Pilihan[userAnswerIndex] == soal.KunciJawaban {
+		fmt.Println("Jawaban anda benar!")
+	} else {
+		fmt.Println("Jawaban anda salah.")
+		fmt.Printf("Jawaban yang benar: %s\n", soal.KunciJawaban)
+	}
+}
+
 func pesertaCheck() int {
 	var count int
 
@@ -81,6 +123,9 @@ func login() {
 	if found {
 		fmt.Printf("ID %d dengan nama %s ditemukan dalam daftar peserta.\n", id, nama)
 		fmt.Printf("Selamat datang %s!\n", DaftarPeserta[id-1].Nama)
+		var loggedIn bool = true
+
+		mainMenu(loggedIn)
 	} else {
 		fmt.Printf("ID %d dengan nama %s tidak ditemukan dalam daftar peserta.\n", id, nama)
 		return
@@ -92,17 +137,21 @@ func adminCommands() string {
 	return "Disini admin melakukan tambah, edit, hapus soal dan kunci jawaban"
 }
 
-func mainMenu() {
-	var answer string
-
-	fmt.Print("Apakah anda sudah mendaftar? (y/n): ")
-	fmt.Scan(&answer)
-
-	if answer == "y" {
-		login()
+func mainMenu(loggedIn ...bool) {
+	if loggedIn != nil {
+		tanyaJawab(0)
 	} else {
-		fmt.Println("Silakan mendaftar terlebih dahulu.")
-		registerPeserta()
+		var answer string
+
+		fmt.Print("Apakah anda sudah mendaftar? (y/n): ")
+		fmt.Scan(&answer)
+
+		if answer == "y" {
+			login()
+		} else {
+			fmt.Println("Silakan mendaftar terlebih dahulu.")
+			registerPeserta()
+		}
 	}
 }
 
