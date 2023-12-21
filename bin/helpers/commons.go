@@ -3,7 +3,7 @@ package helpers
 const (
 	ADMIN   = "admin"
 	PESERTA = "peserta"
-	NMAX    = 100
+	NMAX    = 4
 )
 
 type (
@@ -23,13 +23,13 @@ type (
 
 var (
 	// Arrays
-	DaftarPeserta = [100]Peserta{
+	DaftarPeserta = [NMAX]Peserta{
 		{1, "Riyan", 110},
 		{2, "Kinara", 190},
 		{3, "Arsha", 90},
 	}
 
-	BankSoal = [100]Soal{
+	BankSoal = [NMAX]Soal{
 		{1, "Berapa 1+1?", [4]string{"1", "2", "3", "4"}, "2"},
 		{2, "Kapan Indonesia merdeka?", [4]string{"17 Januari 1900", "17 Februari 1902", "17 Agustus 1945", "31 Desember 2020"}, "17 Agustus 1945"},
 		{3, "Siapakah capres untuk Pemilu 2024?", [4]string{"Anies, Prabowo, Ganjar", "Prabowo, Sutoyo, Anies", "Ganjar, Toyota, Sukijan", "Nurhadi, Aldo, Sujana"}, "Anies, Prabowo, Ganjar"},

@@ -9,7 +9,12 @@ import (
 // Diakses oleh main.go
 func MainMenuPeserta(loggedIn ...bool) {
 	if loggedIn != nil {
-		tanyaJawab(0)
+		var jumlahSoal int
+
+		fmt.Print("Berapa jumlah soal yang anda inginkan? Silakan masukan: ")
+		fmt.Scan(&jumlahSoal)
+
+		tanyaJawab(jumlahSoal)
 	} else {
 		var answer string
 
@@ -31,25 +36,25 @@ func MainMenuPeserta(loggedIn ...bool) {
 
 func loginPeserta() {
 	var (
-		id   int
-		nama string
+		id               int
+		nama             string
+		found            bool = false
+		pesertaTerdaftar common.Peserta
 	)
 
 	fmt.Print("\nMasukkan ID dan nama anda: ")
 	fmt.Scan(&id, &nama)
 
-	var found bool = false
-
 	for _, peserta := range common.DaftarPeserta {
 		if peserta.Id == id && peserta.Nama == nama {
+			pesertaTerdaftar = peserta
 			found = true
-			break
 		}
 	}
 
 	if found {
 		fmt.Printf("ID %d dengan nama %s ditemukan dalam daftar peserta.\n", id, nama)
-		fmt.Printf("Selamat datang %s!\n", common.DaftarPeserta[id-1].Nama)
+		fmt.Printf("Selamat datang %s!\n", pesertaTerdaftar.Nama)
 		var loggedIn bool = true
 
 		MainMenuPeserta(loggedIn)
@@ -60,14 +65,16 @@ func loginPeserta() {
 }
 
 func registerPeserta() {
-	var jumlahPeserta int = pesertaCheck()
+	var (
+		nama          string
+		jumlahPeserta int = pesertaCheck()
+	)
 
 	if jumlahPeserta >= common.NMAX {
 		fmt.Println("Kapasitas peserta sudah penuh.")
 		return
 	}
 
-	var nama string
 	fmt.Print("\nMasukkan nama Anda: ")
 	fmt.Scan(&nama)
 
@@ -95,44 +102,55 @@ func pesertaCheck() int {
 	return count
 }
 
-// Mesti disesuaikan lagi buat nampilin soal acak, lebih dari 1.
-func tanyaJawab(soalIndex int) {
-	if soalIndex < 0 || soalIndex >= common.NMAX || common.BankSoal[soalIndex].Id == 0 {
-		fmt.Println("Pertanyaan tidak ditemukan.")
+// Perlu penyesuaian buat randomize soal quiz yang tampil, dan
+// jangan nampilin soal yang udah sebelumnya ditampilkan.
+func tanyaJawab(N int) {
+	var totalSoalQuiz = len(common.BankSoal)
+
+	if N < 1 || N > totalSoalQuiz {
+		fmt.Printf("Jumlah soal tidak valid. Maksimal soal adalah %d soal.", totalSoalQuiz)
 		return
 	}
 
-	var soal = common.BankSoal[soalIndex]
-	fmt.Printf("\nPertanyaan: %s\n", soal.Pertanyaan)
+	for n := 0; n < N; n++ {
+		soal := common.BankSoal[n]
 
-	var options = []string{"a", "b", "c", "d"}
-	for i, pilihan := range soal.Pilihan {
-		fmt.Printf("%s. %s\n", options[i], pilihan)
-	}
-
-	var jawabanUser string
-	fmt.Print("\nMasukkan jawaban Anda (a, b, c, atau d): ")
-	fmt.Scan(&jawabanUser)
-
-	var userAnswerIndex = -1
-	for i, opt := range options {
-		if jawabanUser == opt {
-			userAnswerIndex = i
-			break
+		if soal.Id == 0 {
+			fmt.Printf("Soal no.%d tidak tersedia.\n", n+1)
+			continue
 		}
-	}
 
-	if userAnswerIndex == -1 {
-		fmt.Println("Jawaban tidak valid.")
-		return
-	}
+		fmt.Printf("\nPertanyaan %d: %s\n", n+1, soal.Pertanyaan)
+		var options = []string{"a", "b", "c", "d"}
+		for i, pilihan := range soal.Pilihan {
+			fmt.Printf("%s. %s\n", options[i], pilihan)
+		}
 
-	fmt.Printf("\nJawaban anda: %s\n", soal.Pilihan[userAnswerIndex])
+		var jawabanUser string
+		fmt.Print("\nMasukkan jawaban Anda (a, b, c, atau d): ")
+		fmt.Scan(&jawabanUser)
 
-	if soal.Pilihan[userAnswerIndex] == soal.KunciJawaban {
-		fmt.Println("Jawaban anda benar!")
-	} else {
-		fmt.Println("Jawaban anda salah.")
-		fmt.Printf("Jawaban yang benar: %s\n", soal.KunciJawaban)
+		var userAnswerIndex = -1
+		var validAnswerFound = false
+
+		for i, opt := range options {
+			if jawabanUser == opt {
+				userAnswerIndex = i
+				validAnswerFound = true
+			}
+		}
+
+		if !validAnswerFound {
+			fmt.Println("Jawaban tidak valid.")
+		} else {
+			fmt.Printf("\nJawaban anda: %s\n", soal.Pilihan[userAnswerIndex])
+
+			if soal.Pilihan[userAnswerIndex] == soal.KunciJawaban {
+				fmt.Println("Jawaban anda benar!")
+			} else {
+				fmt.Println("Jawaban anda salah.")
+				fmt.Printf("Jawaban yang benar: %s\n", soal.KunciJawaban)
+			}
+		}
 	}
 }

@@ -8,3 +8,9 @@ func RoleCheck(role int) string {
 
 	return PESERTA
 }
+
+// Helper untuk mengacak soal.
+func AcakIndeks(index, totalSoal int) int {
+	return (index*index + 1) % totalSoal
+
+}
