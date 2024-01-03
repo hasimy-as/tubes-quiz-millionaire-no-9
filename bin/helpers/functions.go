@@ -9,8 +9,20 @@ func RoleCheck(role int) string {
 	return PESERTA
 }
 
-// Helper untuk mengacak soal.
-func AcakIndeks(index, totalSoal int) int {
-	return (index*index + 1) % totalSoal
+func SimpleShuffle(N, totalSoalQuiz int) []int {
+	var (
+		i       int
+		numbers = make([]int, totalSoalQuiz)
+	)
 
+	for i = range numbers {
+		numbers[i] = i
+	}
+
+	for i = range numbers {
+		swapIndex := i + ((i*73 + 41) % 100 % (totalSoalQuiz - i))
+		numbers[i], numbers[swapIndex] = numbers[swapIndex], numbers[i]
+	}
+
+	return numbers[:N]
 }
